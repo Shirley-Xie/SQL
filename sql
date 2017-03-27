@@ -20,8 +20,8 @@ table:Vendors
          vend_id    vend_name    vend_address		vend_city   vend_state		vend_zip 	  vend_country 
 table:Customers
          cust_id		cust_name    cust_address		cust_city		cust_state		cust_zip		cust_contact		cust_email
-                   Kids Place                                                                             null
-                  The Toy Store                                                                           null
+                   Kids Place                                                         Jim Jones              null
+                  The Toy Store                                                       John Smith               null
 table:Orders
 				 order_num  order_date   cust_id
 table:OrderItems
@@ -59,9 +59,17 @@ table:OrderItems
   4.IN的使用：    SELECT * FROM Products WHERE vend_id IN('DLL01','BRS01') ORDER BY prod_name; --or等价于in
   5.not的使用：   SELECT * FROM Products WHERE NOT prod_price = 3.49 ORDER BY prod_name;
 
-5.通配符过滤
+5.通配符过滤(wildcard,浪费时间，若有选择则不用)
+  1.找bean bag:   SELECT * FROM Products WHERE prod_name LIKE '%bean bag%';
+    (Access用*)  --%:任何字符串出现任意次数，可以是0个，是否区分大小写看配置，null例外。   ？？？去空格
+  2._单个字符:    SELECT * FROM Products WHERE prod_name LIKE '__inch teddy bear'; --Access用?
+  3.查找J或M开头：SELECT cust_contact FROM Customers WHERE cust_contact LIKE '[JM]%' ORDER BY cust_contact;
+                 --[](Access,SQL Server)指定字符串匹配一个字符指定位置
+            取反：SELECT cust_contact FROM Customers WHERE /*二选一NOT*/ cust_contact LIKE '[^JM]%' ORDER BY cust_contact;
+                 --Access用!  通配符尽量不要放在搜素模式的开始处
 
-
-
-
-
+6.创建计算字段 --不实际存在于数据库中，字段不叫列
+  1.显示不同表中的列，拼接 SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) +')' FROM Vendors ORDER BY vend_name;
+     -- +:Access,SQL Server. ||: DB2, Oracle, PostgreSQL, Open Office,SQLite. RTRIM()去右边空格，LTRIM()左边，TRIM()两边.
+  2.不同表结合用大写显示
+  3.                 
