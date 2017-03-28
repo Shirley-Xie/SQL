@@ -10,7 +10,7 @@ column:  prod_id     prod_price         prod_name             vend_id(供应商)
           BR03       11.99             18 inch teddy bear         BRS01
           BNBG01     3.4900          Fish bean bag toy            DLL01
           BNBG02     3.4900           Bird bean bag toy           DLL01
-          BNBG02     3.4900            Rabbit bean bag toy        DLL01
+          BNBG03     3.4900            Rabbit bean bag toy        DLL01
           RGAN01     4.9900            Raggedy Ann                DLL01
           RYL01      9.4900             King doll                 FNG01
           RYL02      4.9900             Queen doll                FNG01
@@ -18,14 +18,31 @@ table:Products
          prod_id		vend_id			 prod_name      prod_price  prod_desc
 table:Vendors
          vend_id    vend_name    vend_address		vend_city   vend_state		vend_zip 	  vend_country 
+                  Bear Emporium
+                  Bears R Us 
+                  Doll House Inc.
+                  Fun and Games
+                  Furball Inc.
+                  Jouets et ours 
 table:Customers
          cust_id		cust_name    cust_address		cust_city		cust_state		cust_zip		cust_contact		cust_email
                    Kids Place                                                         Jim Jones              null
-                  The Toy Store                                                       John Smith               null
+                  The Toy Store                                                       John Smith             null
+                                                                                      Michael Green
 table:Orders
 				 order_num  order_date   cust_id
+         20005
+         20006
+         20007
+         20008
+         20009
 table:OrderItems
          order_num  order_item   prod_id        quantity    item_price
+          20008                  RGAN01             5         4.9900    
+          20008                  BR03               5         11.990
+          20008                  BNBG01            10          3.4900
+          20008                  BNBG02            10          3.4900
+          20008                  BNBG03            10          3.4900
 
 1. 检索数据 select 
   1.查询需要的列:SELECT prod_id, prod_name,prod_price FROM Products; (SQL关键字不区分大小写)
@@ -69,7 +86,29 @@ table:OrderItems
                  --Access用!  通配符尽量不要放在搜素模式的开始处
 
 6.创建计算字段 --不实际存在于数据库中，字段不叫列
-  1.显示不同表中的列，拼接 SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) +')' FROM Vendors ORDER BY vend_name;
-     -- +:Access,SQL Server. ||: DB2, Oracle, PostgreSQL, Open Office,SQLite. RTRIM()去右边空格，LTRIM()左边，TRIM()两边.
-  2.不同表结合用大写显示
-  3.                 
+  1.显示不同表中的列，可以使用别名AS，拼接：
+              SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) +')' AS vend_title FROM Vendors ORDER BY vend_name;
+              -- +:Access,SQL Server. ||: DB2, Oracle, PostgreSQL, Open Office,SQLite. 
+  2.获取总价：SELECT prod_id, quantity, item_price, quantity*item_price AS expanded_price FROM OrderItems WHERE order_num = 20008;
+
+7.使用数据处理函数
+  1.文本处理：SELECT vend_name, UPPER(vend_name) AS vend_name_upcase FROM Vendors ORDER BY vend_name;
+    --LEFT()返回字符串左边的字符，RIGHT()右边                --LENGTH()/DATALENGTH()/LEN()返回字符串的长度
+    --LOWER()小写 Access:LCASE()                             --RTRIM()去掉右边空格，LTRIM()左边，TRIM()两边
+    --SOUNDEX() 返回字符串发音相似值Access,PostgreSQL不支持  --UPPER()大写，Access:UCASE() 
+              SELECT cust_name, cust_contact FROM Customers WHERE SOUNDEX(cust_contact) = SOUNDEX('Michael Green')
+  2.时间处理,检索2012年所有订单：
+              SELECT order_num FROM Orders WHERE DATEPART(yy, order_date) = 2012;
+              --Access 'yyyy' --PostgreSQL: DATE_PART 'year'
+              /*Oracle Where to_number(to_char(order_date,'YYYY'))或 
+               WHERE order_date BETWEEN to_date('01-01-2012')AND to_date('12-31-2012')
+              */
+              --MySQL MariaDB：WHERE YEAR(order_date) = 2012
+              --SQLite WHERE strftime('%Y', order_date) = 2012
+  3.最统一的数值处理：   
+              --ABS() COS() EXP() PI() SIN() SQRT()平方根 TAN()
+
+8.汇总数据
+  1.汇聚函数                
+
+
