@@ -36,16 +36,21 @@ table:Vendors
                   Jouets et ours 
 table:Customers
          cust_id		cust_name    cust_address		cust_city		cust_state		cust_zip		cust_contact		cust_email
-                   Kids Place                                                         Jim Jones              null
-                  The Toy Store                                                       John Smith             null
+                   Kids Place                                   OH                    Jim Jones              null
+                  The Toy Store                                 IL                    John Smith             null
                                                                                       Michael Green
+                  Fun4All                                       IN        
+                  Fun4All                                       AZ
+                  Village Toys                                  MI                       
 table:Orders
 				 order_num  order_date   cust_id
-         20005
-         20006
+                                 1000000001
+         20005                   1000000002
+         20006                   1000000003
          20007                   1000000004
          20008                   1000000005
          20009
+
 table:OrderItems
          order_num  order_item   prod_id        quantity    item_price
           20007                  RGAN01
@@ -142,10 +147,36 @@ table:OrderItems
 
 10. 子查询：只能查询单列
       查找订单物品RGAN01的所有客户--从OrderItems (order_num) Orders (cust_id) Customers
-   1.  Child == SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01')
-       SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(Child);--太长写2个
-   2. 
-   3.
+   1. Child = SELECT cust_id FROM Orders WHERE order_num IN (SELECT order_num FROM OrderItems WHERE prod_id = 'RGAN01')
+      SELECT cust_name, cust_contact FROM Customers WHERE cust_id IN(Child);--太长写2个
+   2. 作为计算字段
+      Child = SELECT COUNT(*) FROM Orders WHERE Orders.cust_id = Customers.cust_id;
+   3. SELECT cust_name, cust_state, Child AS orders FROM Customers ORDER BY cust_name;
+
+11. 联结表
+   1. 联结       SELECT vend_name, prod_name, prod_price FROM Vendors, Products WHERE Vendors.vend_id = Products.vend_id;
+
+   2. 内联结     SELECT vend_name, prod_name, prod_price FROM Vendors INNER JOIN Products ON Vendors.vend_id = Products.vend_id; 
+
+   3. 联结多个表 SELECT prod_name, vend_name, prod_price, quantity FROM OrderItems, Products, Vendors WHERE Products.vend_id = Vendors.vend_id
+                 AND OrderItems.prod_id = Products.prod_id AND order_num = 20007;
+
+    10.1 的等价  SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id
+                 AND OrderItems.order_num = Orders.order AND prod_id = 'RGAN01';
+
+
+
+12. 创建高级联结
+   1.使用表别名 SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) + ')' AS vend_title FROM Vendors ORDER BY vend_name;
+
+                SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id
+                AND OI.order_num = O.order_num  AND prod_id = 'RGAN01';
+
+   2.自联结:排除多次出现  -- 给jim jones 同一公司的所有顾客发信息 方案一子查询 方案二联结
+                SELECT c1.cust_id, c1.cust_name, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name 
+                AND c2.cust_contact = 'Jim Jones'; 
+                SELECT C.*, O           
+   
 
 
 
