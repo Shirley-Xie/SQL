@@ -167,16 +167,62 @@ table:OrderItems
 
 
 12. 创建高级联结
-   1.使用表别名 SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) + ')' AS vend_title FROM Vendors ORDER BY vend_name;
+  1. 使用表别名 SELECT RTRIM(vend_name) + '(' + RTRIM(vend_country) + ')' AS vend_title FROM Vendors ORDER BY vend_name;
 
                 SELECT cust_name, cust_contact FROM Customers AS C, Orders AS O, OrderItems AS OI WHERE C.cust_id = O.cust_id
                 AND OI.order_num = O.order_num  AND prod_id = 'RGAN01';
 
-   2.自联结:排除多次出现  -- 给jim jones 同一公司的所有顾客发信息 方案一子查询 方案二联结
+  2. 自联结:排除多次出现  -- 给jim jones 同一公司的所有顾客发信息 方案一子查询 方案二联结
                 SELECT c1.cust_id, c1.cust_name, c1.cust_contact FROM Customers AS c1, Customers AS c2 WHERE c1.cust_name = c2.cust_name 
                 AND c2.cust_contact = 'Jim Jones'; 
-                SELECT C.*, O           
+                SELECT C.*, O.order_num, O.order_date, OI.prod_id, OI.quantity, OI.item_price FROM Customers AS C,Orders AS O, 
+                OrderItems AS OI WHERE C.cust_id = O.cust_id AND OI.order_num = O.order_num  AND prod_id = 'RGAN01';  
+
+  3. 外联结：相关表中没有没有关联行的行
+             ~对每个客户下的订单进行计数，包括那些至今尚未下单的客户   
+             ~列出所有产品以及订购数量的产品，包括没人订购的产品
+             ~计算平均销售规模，包括那些尚未下单尚未顾客
+
+             SELECT Customers.cust_id, Orders.order_num FROM Customers INNER JOIN Orders ON Customers.cust_id = Orders.cust_id;--内联结
+             SELECT Customers.cust_id, Orders.order_num FROM Customers LEFT OUTER JOIN Orders  ON Customers.cust_id = Orders.cust_id;--外联结
+             --SQLite 支持 LEFT 不支持 RIGHT 全外联结：
+             SELECT Customers.cust_id, Orders.order_num FROM Orders FULL OUTER JOIN Customers ON Customers.cust_id = Orders.cust_id; 
+             --Access,MariaDB,MySQL,Open Office Base 或 SQLite 不支持FULL
+
+  4. 带聚集函数：(SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers INNER JOIN Orders ON Customers.cust_id = 
+                 Orders.cust_id GROUP BY  Customers.cust_id;)
+                 SELECT Customers.cust_id, COUNT(Orders.order_num) AS num_ord FROM Customers LEFT OUTER JOIN Orders ON Customers.cust_id = 
+                 Orders.cust_id GROUP BY  Customers.cust_id; --1000000002 0
+
+  
+13. 组合查询
+            在一个查询中从不同的表返回结构数据
+            对一个表执行多个查询，按一个查询返回数据
+
+    1. 使用UNION: SELECT cust_name, cust_contact, cust_email FROM Customers WHERE cust_state IN ('IL','IN','MI') 
+                  UNION SELECT cust_name, cust_contact, cust_email FROM Customers WHERE cust_name = 'Fun4All';
+                  --联结多个SELECT
+
+14. 插入数据
+   1. 全行插入：  INSERT INTO Customers VALUES('100000006', 'Toy Land', '123', 'NEW York', '11111', 'USA', 'NULL','NULL'); --还可以写对应的
+   2. 插入部分行：INSERT INTO Customers(cust_id, cust_name) VALUES('100000006', 'Toy Land');   
+   3. 插入检索出的数据：
+                  INSERT INTO Customers(cust_id, cust_name) SELECT cust_id, cust_name FROM CustNew;--插入所有
+   4. 从一个表复制到另一个表：SELECT INTO --DB2不支持
+                  SELECT * INTO CustCopy FROM Customers;
+                  --MariaDB, MySQL, Oracle, PostgreSQL, SQLite不同
+                  CREATE TABLE CustCopy AS SELECT * FROM Customers;
+
+15. 更新和删除数据
+                  
+                                             
+
+
+
+
+
    
+
 
 
 
