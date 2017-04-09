@@ -214,7 +214,28 @@ table:OrderItems
                   CREATE TABLE CustCopy AS SELECT * FROM Customers;
 
 15. 更新和删除数据
+   1. 更新特定行   UPDATE Customers SET cust_contact = 'Sam Robets', cust_email = 'kim@thetoystore.com' WHERE cust_id = '1000000005';
+   2. 删除数据某行 DELETE FROM Customers WHERE cust_id = '1000000006'; --删除所有行 TRUNCATE TABLE
+  
+16. 创建和操纵表
+   1. CREATE TABLE Products (prod_id CHAR(10) NOT NULL, vend_id CHAR(10) NOT NULL, prod_name CHAR(10) DEFAULT 1, prod_price DECIMAL(8,2) NOT NULL, prod_desc VARCHAR(1000) NULL);  
+      --MySQL varchar 换为text, DB2 必须去掉最后的null
+      获取系统时间：
+      -DB2:CURRENT_DATE      -PostgreSQL:CURRENT_DATE  -MySQL:CURRENT_DATE()   
+      -SQL Server GETDATE()  -SQLite date('now')       -Access：NOW()  -Oracle:SYSDATE
+   2. 新增列 ALTER TABLE Vendors DROP COLUMN vend_phone;   
+   3. 删除表 DROP TABLE CustCopy;
+   4. 重命名 RENAME / sp_rename 
+
+17. 使用视图（虚拟的表）Microsoft Access不支持，MySQL5后才支持SQLite仅支持只读
+   1. 创建视图：CREATE VIEW ProductCustmers AS SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id
+                AND OrderItems.order_num = Orders.order;
+                SELECT cust_name, cust_contact FROM ProductCustmers WHERE prod_id ='RGAN01';     
+
+      删除视图：DROP VIEW viewname
                   
+
+
                                              
 
 
