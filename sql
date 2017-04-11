@@ -49,7 +49,8 @@ table:Orders
          20006                   1000000003
          20007                   1000000004
          20008                   1000000005
-         20009
+         20009 
+                                 1000000001
 
 table:OrderItems
          order_num  order_item   prod_id        quantity    item_price
@@ -227,12 +228,44 @@ table:OrderItems
    3. 删除表 DROP TABLE CustCopy;
    4. 重命名 RENAME / sp_rename 
 
-17. 使用视图（虚拟的表）Microsoft Access不支持，MySQL5后才支持SQLite仅支持只读
+17. 使用视图（虚拟的表，封装SELECT，简化数据处理）
+             --Microsoft Access不支持，MySQL5后才支持SQLite仅支持只读
    1. 创建视图：CREATE VIEW ProductCustmers AS SELECT cust_name, cust_contact FROM Customers, Orders, OrderItems WHERE Customers.cust_id = Orders.cust_id
                 AND OrderItems.order_num = Orders.order;
                 SELECT cust_name, cust_contact FROM ProductCustmers WHERE prod_id ='RGAN01';     
 
       删除视图：DROP VIEW viewname
+
+18. 使用存储过程 --Microsoft Access, SQLite，MySQL5之前不支持。只有Oracle和SQL Server例子
+   1. EXECUTE AddNewProduct('JTS01','Stuffed Eiffe 1 Tower',6.49,'Plush Stuffed toy with the text La Tour')
+
+19.管理事务处理
+
+20. 使用游标
+
+21. 高级SQL特性 --约束比触发器快
+    1. 约束：主键是保证列的值的唯一
+                CREATE TABLE Vendors (vend_id CHAR(10) NOT NULL PRIMARY KEY, vend_name CHAR(50) NOT NULL, ...)
+                ALTER TABLE Vendors ADD CONSTRAIN PRIMARY KEY (vend_id); --CREATE/ALTER SQLite无ALTER TABLE
+    2. 外键：   
+                CREATE TABLE Orders (order_num INTEGER NOT NULL PRIMARY KEY, order_date DATETIME NOT NULL,
+                cust_id CHAR(10) NOT NULL REFERENCES Customers(cust_id));
+                ALTER TABLE Orders  ADD CONSTRAIN  FOREIGN KEY (cust_id) REFERENCES Customers (cust_id);--级联删除
+    3. 唯一的约束：表可以有多个唯一的约束，可包含null，可重复使用。UNIQUE 或 CONSTRAINT 定义
+    4. 检查约束：
+                CREATE TABLE OrderItems (order_num INTEGER NOT NULL , prod_id CHAR(10) NOT NULL, 
+                quantity  INTEGER CHECK (quantity > 0) NOT NULL, item_price MONEY NOT NULL);
+                --检查gender的列只包含M或F  
+                ADD CONSTRAIN CHECK (gender LIKE '[MF]');
+    5. 索引     CREATE INDEX prod_name_ind ON PROSUCTS (prod_name);
+    6. 触发器 --SQL Server   
+              CREATE TRIGGER customer_state ON Customers FOR  INSERT, UPDATE AS UPDATE Customers SET cusinst_state = UPPER(cust_state)
+              WHERE Customers.cust_id = inserted.cust_id;
+              --Oracle、PostgreSQL:
+              CREATE TRIGGER customer_state AFTER INSERT OR UPDATE FOR EACH ROW BEGIN  UPDATE Customers SET cusinst_state = UPPER(cust_state)
+              WHERE Customers.cust_id = :OLD.cust_id END;
+    7. 数据库安全：GRANT 和 REVOKE          
+
                   
 
 
