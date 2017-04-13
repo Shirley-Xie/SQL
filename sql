@@ -237,9 +237,34 @@ table:OrderItems
       删除视图：DROP VIEW viewname
 
 18. 使用存储过程 --Microsoft Access, SQLite，MySQL5之前不支持。只有Oracle和SQL Server例子
-   1. EXECUTE AddNewProduct('JTS01','Stuffed Eiffe 1 Tower',6.49,'Plush Stuffed toy with the text La Tour')
-
-19.管理事务处理
+   1. 执行存储过程
+      EXECUTE AddNewProduct('JTS01','Stuffed Eiffe 1 Tower',6.49,'Plush Stuffed toy with the text La Tour')
+      --?怎看出来是添加到Products?
+   2. 创建存储过程--Oracle
+     CREATE PROCEDURE MailingListCount (ListCount OUT INTEGER) IS v_rows INTEGER;
+     BEGIN SELECT COUNT(*) INTO v_rows FROM Customers WHERE NOT cust_email IS NULL; ListCount := v_rows; END;
+     --调用
+     var ReturnValue NUMBER EXEC MailingListCount(:ReturnValue); SELECT ReturnValue;
+   3. -- SQL Server
+     CREATE PROCEDURE MailingListCount AS DECLARE @cnt INTEGER SELECT @cnt = COUNT(*) FROM Customers 
+     WHERE NOT cust_email IS NULL; RETURN @cnt;
+     --调用
+     DECLARE @ReturnValue INT EXECUTE @ReturnValue = MailingListCount; SELECT @ReturnValue;     
+      
+19. 管理事务处理
+   1. 控制事务处理开始到结束
+                    BEGIN TRANSACTION ... COMMIT TRANSACTION --SQL Server
+                    START TRANSACTION ... --MariaDB, MySQL
+                    SET TRANSACTION ... --Oracle 
+                    BEGIN ... --PostgreSQL 
+   2. 回退 DELETE FROM Orders; ROLLBACK;
+   3. BEGIN TRANSACTION DELETE OrderItems WHERE order_num = 12345 DELETE Orders WHERE order_num = 12345
+      COMMIT TRANSACTION  --SQL Server   
+      SET TRANSACTION DELETE OrderItems WHERE order_num = 12345 DELETE Orders WHERE order_num = 12345;COMMIT;--Oracle
+   4. SAVEPOINT delete1; --MariaDB,MySQL,Oracle
+      SAVE TRANSACTION delete1; --SQL Server
+      ROLLBACK TO delete1; --MariaDB,MySQL和Oracle
+      BEGIN TRANSACTION Customers(cust_id, cust_name) VALUES('10000000010','Toys Emporium');SAVE TRANSACTION StartOrder; --SQL Server完整版
 
 20. 使用游标
 
